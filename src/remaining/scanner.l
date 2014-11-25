@@ -26,7 +26,9 @@ extern YYLTYPE yylloc; // Used for position information, see below.
 DIGIT [0-9]
 IDENT [_a-z][_a-z0-9]*
 INTNUM {DIGIT}+
-REALNUM {DIGIT}+"."{DIGIT}
+DECIMAL ({DIGIT}*"."{DIGIT}+|{DIGIT}+"."{DIGIT}*)
+EXP [eE][+-]?[0-9]*
+REALNUM ({DECIMAL}{EXP}?|{INTNUM}{EXP})
 STRINGCONST '([^'\n]|'')*'
 NEWLINESTRINGCONST '([^'\n]|'')*\n
 
