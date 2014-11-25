@@ -1,3 +1,7 @@
+src/scan/scanner
+src/scan/scanner.cc
+.gitignore.swp
+
 # Created by https://www.gitignore.io
 
 ### OSX ###
