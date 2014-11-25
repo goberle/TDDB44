@@ -556,6 +556,7 @@ sym_index symbol_table::close_scope()
    follows hash links outwards. */
 sym_index symbol_table::lookup_symbol(const pool_index pool_p)
 {
+    
     /* Your code here */
     return NULL_SYM;
 }
@@ -646,8 +647,54 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
 sym_index symbol_table::install_symbol(const pool_index pool_p,
                                        const sym_type tag)
 {
-    /* Your code here */
-    return 0; // Return index to the symbol we just created.
+    // Try to find if pool_p is already referenced
+    sym_index index = lookup_symbol(pool_p);
+
+    // If index is not 0 then pool_p is already referenced
+    if (index)
+        return index;
+
+    // Create the symbol object
+
+    symbol * sym;;
+    
+    switch(tag) {
+    case SYM_ARRAY:
+        sym = new array_symbol(pool_p);
+        break;
+    case SYM_FUNC:
+        sym = new function_symbol(pool_p);
+        break;
+    case SYM_VAR:
+        sym = new variable_symbol(pool_p);
+        break;
+    case SYM_CONST:
+        sym = new constant_symbol(pool_p);
+        break;
+    case SYM_PROC:
+        sym = new procedure_symbol(pool_p);
+        break;
+    case SYM_NAMETYPE:
+        sym = new nametype_symbol(pool_p);
+        break;
+    case SYM_PARAM:
+        sym = new parameter_symbol(pool_p);
+        break;
+    case SYM_UNDEF:
+        //TODO check if this should produce an error or just create a generic symbol
+        sym = new symbol(pool_p);
+        break;
+    }
+
+    // The symbol level is the current level
+    sym->level = current_level;
+
+    // TODO check with symtable size (where to get it ?)
+
+    // Add the new symbol to the symbol table
+    sym_table[++sym_pos] = sym;
+
+    return sym_pos; // Return index to the symbol we just created.
 }
 
 /* Enter a constant into the symbol table. The value is an integer. The type
