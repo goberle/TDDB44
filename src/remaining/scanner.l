@@ -24,8 +24,11 @@ extern YYLTYPE yylloc; // Used for position information, see below.
 
 %x c_comment
 DIGIT [0-9]
-/* {DIGIT}+"."{DIGIT}*
- ID [a-z][a-z0-9]* */
+IDENT [_a-z][_a-z0-9]*
+INTNUM {DIGIT}+
+REALNUM {DIGIT}+"."{DIGIT}
+STRINGCONST '([^'\n]|'')*'
+NEWLINESTRINGCONST '([^'\n]|'')*\n
 
 /* Position information is entered into the yylloc variable, so we will be
    able to generate good error messages later in later phases. */
@@ -267,8 +270,49 @@ procedure                {
                             return T_PROCEDURE;
                          }
 
+{REALNUM}                {
+                            yylval.rval = atof(yytext);
+                            yylloc.first_line = yylineno;
+                            yylloc.first_column = column;
+                            column += yyleng;
+                            return T_REALNUM; 
+                         }
+{INTNUM}                 {
+                            yylval.ival = atoi(yytext);
+                            yylloc.first_line = yylineno;
+                            yylloc.first_column = column;
+                            column += yyleng;
+                            return T_INTNUM; 
+                         }
+{STRINGCONST}            {
+                            char *fixedString = sym_tab->fix_string(yytext);
+                            yylval.str = sym_tab->pool_install(fixedString);
+                            delete fixedString;
+                            yylloc.first_line = yylineno;
+                            yylloc.first_column = column;
+                            column += yyleng;
+                            return T_STRINGCONST;
+                         }
+{NEWLINESTRINGCONST}     {
+                            column = 0;
+                            yyerror("Newline in string");
+                         }
+{IDENT}                  {
+                            char *capitalizedString = sym_tab->capitalize(yytext);
+                            yylval.pool_p = sym_tab->pool_install(capitalizedString);
+                            delete capitalizedString;
+                            yylloc.first_line = yylineno;
+                            yylloc.first_column = column;
+                            column += yyleng;
+                            return T_IDENT;
+                         }
+
+[ \t]                    column += 1;
+
+\n                       column = 0;
 
 \/\/.*$                  column = 0; /* Skip single-line comment */
+
 "/\*"                    {
                             column += yyleng;
                             BEGIN(c_comment);
@@ -291,8 +335,6 @@ procedure                {
                             yyterminate();
                          }
 }
-
- 
 
 <<EOF>>                  yyterminate();
 .                        yyerror("Illegal character");
