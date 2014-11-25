@@ -23,6 +23,8 @@ extern YYLTYPE yylloc; // Used for position information, see below.
 /* If you want to include any flex declarations, this is where to do it. */
 
 %x c_comment
+%x o_comment
+
 DIGIT [0-9]
 IDENT [_a-z][_a-z0-9]*
 INTNUM {DIGIT}+
@@ -317,6 +319,10 @@ procedure                {
                             column += yyleng;
                             BEGIN(c_comment);
                          }
+"{"                      {
+                            column += yyleng;
+                            BEGIN(o_comment);
+                         }
 
 <c_comment>
 {
@@ -329,6 +335,24 @@ procedure                {
                             yyerror("Suspicious comment");
                          }
     [^\n]                column++; /* Skip stuff in comments */
+    \n                   column = 0;
+    <<EOF>>              {
+                            yyerror("Unterminated comment");
+                            yyterminate();
+                         }
+}
+
+<o_comment>
+{
+    "}"                  {
+                            column += yyleng;
+                            BEGIN(INITIAL);
+                         }
+    "{"                  {
+                            column += yyleng;
+                            yyerror("Suspicious comment");
+                         }
+    [^\n]                column++;
     \n                   column = 0;
     <<EOF>>              {
                             yyerror("Unterminated comment");
