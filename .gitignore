@@ -4,6 +4,13 @@ src/scan/scanner.cc
 
 *.dependencies
 
+#QtCreator
+*.creator
+*.creator.user
+*.files
+*.includes
+*.config
+
 # Created by https://www.gitignore.io
 
 ### OSX ###
