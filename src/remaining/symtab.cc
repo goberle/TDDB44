@@ -531,21 +531,30 @@ sym_index symbol_table::current_environment()
 /* Increase the current_level by one. */
 void symbol_table::open_scope()
 {
-    ++current_level;
-
-    block_table[current_level] = sym_pos;
-
-    // No more than 8 nested level in Diesel
-    if (current_level >= 8)
+    if (current_level == MAX_BLOCK)
         fatal ("Not allowed to have more than 8 nested level.");
+
+    ++current_level;
+    block_table[current_level] = sym_pos;
 }
 
 
 /* Decrease the current_level by one. Return sym_index to new environment. */
 sym_index symbol_table::close_scope()
 {
-    /* Your code here */
-    return NULL_SYM;
+    for (int i = sym_pos; i < current_environment() + 1; i--)
+    {
+        symbol *sym = get_symbol(i);
+        hash_index hi = hash(sym->id);
+
+        if (hash_table[hi] == i)
+        {
+            hash_table[hi] = sym->hash_link;
+        }
+    }
+
+    --current_level;
+    return current_environment();
 }
 
 
