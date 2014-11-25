@@ -531,7 +531,13 @@ sym_index symbol_table::current_environment()
 /* Increase the current_level by one. */
 void symbol_table::open_scope()
 {
-    /* Your code here */
+    ++current_level;
+
+    block_table[current_level] = sym_pos;
+
+    // No more than 8 nested level in Diesel
+    if (current_level >= 8)
+        fatal ("Not allowed to have more than 8 nested level.");
 }
 
 
