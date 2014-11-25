@@ -947,8 +947,28 @@ sym_index symbol_table::enter_function(position_information *pos,
 sym_index symbol_table::enter_procedure(position_information *pos,
                                         const pool_index pool_p)
 {
-    /* Your code here */
-    return NULL_SYM;
+    // Try to install a new procedure symbol
+    sym_index sym_p = install_symbol(pool_p, SYM_PROC);
+    procedure_symbol *proc = sym_table[sym_p]->get_procedure_symbol();
+
+    // Make sure it's not already been declared.
+    if (proc->tag != SYM_UNDEF) {
+        type_error(pos) << "Redeclaration: " << proc << endl;
+        return sym_p; // returns the original symbol
+    }
+
+    // Set up the function-specific fields.
+    proc->tag = SYM_PROC;
+    // Parameters are added later on.
+    proc->last_parameter = NULL;
+
+    // This will grow as local variables and temporaries are added.
+    proc->ar_size = 0;
+    proc->label_nr = get_next_label();
+
+    sym_table[sym_p] = proc;
+
+    return sym_p;
 }
 
 
