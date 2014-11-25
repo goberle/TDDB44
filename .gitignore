@@ -1,7 +1,12 @@
+scanner.cc
+
 src/scan/scanner
-src/scan/scanner.cc
+src/symtab/symtab
+
+
 .gitignore.swp
 
+*Makefile.dependencies
 *.dependencies
 
 #QtCreator
