@@ -565,13 +565,38 @@ sym_index symbol_table::close_scope()
    follows hash links outwards. */
 sym_index symbol_table::lookup_symbol(const pool_index pool_p)
 {
+    // symbols with block level above this level should not be visible
+    // this lookup level is to be decreased each time we find a symbol with a lower level
+    block_level lookup_level = current_level;
+
+    // Start searching from sym_pos (+1 is just for the post decrementation while loop)
     sym_index i (sym_pos + 1);
 
+    // for each block_level lower than sym_pos
     while (i--)
     {
+        if (sym_table[i]->level > lookup_level )
+        {
+            // If the next symbol has a level lower than our lookup level
+            // we decrease the lookup level for next symbols
+            --lookup_level;
+        }
+        else if (sym_table[i]->level > lookup_level)
+        {
+            // If the next symbol has a level higher than our lookup level
+            // Then this symbol should not be visible and we try the next one
+            continue;
+        }
+
+        // Here we know our symbol is vislble
+
+        // If our symbol id is the one we are looking for, we return it's position
+
         if (sym_table[i]->id == pool_p)
             return i;
     }
+
+    // We did not find any matching symbol
 
     return NULL_SYM;
 }
