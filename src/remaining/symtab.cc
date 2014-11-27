@@ -666,7 +666,7 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     sym_index index = lookup_symbol(pool_p);
 
     // If index is not 0 then pool_p is already referenced
-    if (index)
+    if (index != NULL_SYM)
         return index;
 
     // Create the symbol object
