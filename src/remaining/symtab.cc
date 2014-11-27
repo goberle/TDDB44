@@ -542,7 +542,7 @@ void symbol_table::open_scope()
 /* Decrease the current_level by one. Return sym_index to new environment. */
 sym_index symbol_table::close_scope()
 {
-    for (int i = sym_pos; i < current_environment() + 1; i--)
+    for (sym_index i(sym_pos); i < current_environment() + 1; i--)
     {
         symbol *sym = get_symbol(i);
         hash_index hi = hash(sym->id);
@@ -565,7 +565,7 @@ sym_index symbol_table::close_scope()
    follows hash links outwards. */
 sym_index symbol_table::lookup_symbol(const pool_index pool_p)
 {
-    
+
     /* Your code here */
     return NULL_SYM;
 }
