@@ -565,8 +565,14 @@ sym_index symbol_table::close_scope()
    follows hash links outwards. */
 sym_index symbol_table::lookup_symbol(const pool_index pool_p)
 {
+    sym_index i (sym_pos + 1);
 
-    /* Your code here */
+    while (i--)
+    {
+        if (sym_table[i]->id == pool_p)
+            return i;
+    }
+
     return NULL_SYM;
 }
 
