@@ -729,8 +729,10 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     // The symbol level is the current level
     sym->level = current_level;
 
-    // TODO check with symtable size (where to get it ?)
+    // No following hash by default
+    sym->hash_link = -1;
 
+    // TODO check with symtable size (where to get it ?)
     // Add the new symbol to the symbol table
     sym_table[++sym_pos] = sym;
 
