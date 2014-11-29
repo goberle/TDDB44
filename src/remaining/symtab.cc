@@ -984,7 +984,9 @@ sym_index symbol_table::enter_procedure(position_information *pos,
         return sym_p; // returns the original symbol
     }
 
-    // Set up the function-specific fields.
+    proc->type = void_type;
+
+    // Set up the procedure-specific fields.
     proc->tag = SYM_PROC;
     // Parameters are added later on.
     proc->last_parameter = NULL;
