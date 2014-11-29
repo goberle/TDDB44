@@ -570,10 +570,6 @@ sym_index symbol_table::lookup_symbol(const pool_index pool_p)
 
     for (sym_index sym_i(hash_table[hash_i]); sym_i != NULL_SYM; sym_i = get_symbol(sym_i)->hash_link)
     {
-        // Do not look at different scope level
-        if (get_symbol(sym_i)->level != current_level)
-            break;
-
         // If this symbol identifier is the same as the one we are looking for
         // Then we return its index
         if (pool_compare(get_symbol(sym_i)->id, pool_p))
@@ -675,7 +671,7 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     sym_index index = lookup_symbol(pool_p);
 
     // If index is not 0 then pool_p is already referenced
-    if (index != NULL_SYM)
+    if (index != NULL_SYM && sym_table[index]->level == current_level)
         return index;
 
     // Create the symbol object
@@ -721,26 +717,18 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     sym_table[++sym_pos] = sym;
 
     hash_index hash_i (hash(pool_p));
-    sym_index sym_i(hash_table[hash_i]);
 
     // Set the back link to the hash index
     sym->back_link = hash_i;
 
     // If this hash position does not have any symbol
-    if (sym_i == NULL_SYM)
+    if (hash_table[hash_i] != NULL_SYM)
     {
-        // We set the current symbol as the first symbol in this hash link position
-        hash_table[hash_i] = sym_pos;
+        sym->hash_link = hash_table[hash_i];
     }
-    else
-    {
-        // follow hash link to first symbol without link
-        for ( ; sym_table[sym_i]->hash_link != NULL_SYM; sym_i = sym_table[sym_i]->hash_link);
 
-        // Set the last available as predecessoor of the new symbol
-        sym_table[sym_i]->hash_link = sym_pos;
-
-    }
+    // We set the current symbol as the first symbol in this hash link position
+    hash_table[hash_i] = sym_pos;
 
     return sym_pos; // Return index to the symbol we just created.
 }
