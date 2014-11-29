@@ -9,6 +9,11 @@ src/remaining/compiler
 *Makefile.dependencies
 *.dependencies
 
+#generated C files
+parser.cc
+parser.hh
+scanner.cc
+
 #QtCreator
 *.creator
 *.creator.user
