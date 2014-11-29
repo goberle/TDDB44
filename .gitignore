@@ -2,7 +2,7 @@ scanner.cc
 
 src/scan/scanner
 src/symtab/symtab
-
+src/remaining/compiler
 
 .gitignore.swp
 
