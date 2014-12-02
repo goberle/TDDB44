@@ -919,12 +919,7 @@ func_call       : func_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                         new position_information(@1.first_line,
                                                  @1.first_column);
                     $$ = new ast_functioncall(pos, $1, $3);
-
-                    $$->type = sym_tab->get_symbol_type(sym_tab->lookup_symbol($1->sym_p));
-
-                    cout << "function call \n" << $$ << endl
-                         << "type : " << $$->type << endl;
-
+                    $$->type = sym_tab->get_symbol_type($1->sym_p);
 
                 }
                 |
