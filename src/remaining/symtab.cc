@@ -542,7 +542,7 @@ void symbol_table::open_scope()
 /* Decrease the current_level by one. Return sym_index to new environment. */
 sym_index symbol_table::close_scope()
 {
-    for (sym_index i(sym_pos); i >= current_environment(); i--)
+    for (sym_index i(sym_pos); i > current_environment(); i--)
     {
         symbol *sym = get_symbol(i);
         hash_index hi = hash(sym->id);
