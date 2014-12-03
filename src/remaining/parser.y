@@ -802,7 +802,7 @@ simple_expr     : term
                     position_information *pos =
                         new position_information(@1.first_line,
                                                  @1.first_column);
-                    ast_uminus(pos, $2);
+                    $$ = new ast_uminus(pos, $2);
 
                 }
                 | simple_expr T_OR term
