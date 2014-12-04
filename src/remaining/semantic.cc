@@ -62,7 +62,7 @@ bool semantic::chk_param(ast_id *env,
     if (!chk_param(env, formals->preceding, actuals->preceding))
         return false;
 
-    sym_index actual_type = actuals->type_check();
+    sym_index actual_type = actuals->last_expr->type;
 
     if (actual_type != formals->type)
     {
@@ -84,6 +84,13 @@ void semantic::check_parameters(ast_id *call_id,
                                 ast_expr_list *param_list)
 {
     /* Your code here */
+
+    // If we have parameters
+    if (param_list == NULL)
+        return;
+
+    param_list->type_check();
+
     symbol * sym = sym_tab->get_symbol(call_id->sym_p);
     parameter_symbol * formals = NULL;
 
