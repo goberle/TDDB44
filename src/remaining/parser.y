@@ -183,8 +183,7 @@ prog_head       : T_PROGRAM T_IDENT
                         new position_information(@1.first_line,
                                                  @1.first_column);
 
-                    $$ = new ast_procedurehead(pos, $2);
-                    sym_tab->enter_procedure(pos, $2);
+                    $$ = new ast_procedurehead(pos, sym_tab->enter_procedure(pos, $2));
 
                     sym_tab->open_scope();
                 }
