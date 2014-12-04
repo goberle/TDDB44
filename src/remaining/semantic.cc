@@ -306,7 +306,7 @@ sym_index ast_or::type_check()
 sym_index ast_and::type_check()
 {
     /* Your code here */
-    return type = type_checker->check_binop2(this, "OR");
+    return type = type_checker->check_binop2(this, "AND");
 }
 
 sym_index ast_idiv::type_check()
