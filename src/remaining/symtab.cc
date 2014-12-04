@@ -545,12 +545,12 @@ sym_index symbol_table::close_scope()
     for (sym_index i(sym_pos); i > current_environment(); i--)
     {
         symbol *sym = get_symbol(i);
-        hash_index hi = hash(sym->id);
+        hash_index hi = sym->back_link;
 
         if (hash_table[hi] == i)
         {
             hash_table[hi] = sym->hash_link;
-            sym_table[i]->hash_link = -1;
+            sym_table[i]->hash_link = NULL_SYM;
         }
     }
 
@@ -577,7 +577,6 @@ sym_index symbol_table::lookup_symbol(const pool_index pool_p)
     }
 
     // We did not find any matching symbol
-
     return NULL_SYM;
 }
 
@@ -674,9 +673,11 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     if (index != NULL_SYM && sym_table[index]->level == current_level)
         return index;
 
-    // Create the symbol object
+    if (sym_pos >= MAX_SYM)
+        fatal("Not more spaces in symbol table.");
 
-    symbol * sym;;
+    // Create the symbol object
+    symbol *sym = NULL;
     
     switch(tag) {
     case SYM_ARRAY:
@@ -700,37 +701,24 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     case SYM_PARAM:
         sym = new parameter_symbol(pool_p);
         break;
-    case SYM_UNDEF:
-        //TODO check if this should produce an error or just create a generic symbol
-        sym = new symbol(pool_p);
+    default:
+        fatal("Cannot install symbol of unknown tag type.");
         break;
     }
 
     // The symbol level is the current level
     sym->level = current_level;
 
-    // No following hash by default
-    sym->hash_link = -1;
-
-    // TODO check with symtable size (where to get it ?)
     // Add the new symbol to the symbol table
-    sym_table[++sym_pos] = sym;
+    ++sym_pos;
+    sym_table[sym_pos] = sym;
 
-    hash_index hash_i (hash(pool_p));
+    // Setup the hash table linking
+    sym->back_link = hash(pool_p);
+    sym->hash_link = hash_table[sym->back_link];
+    hash_table[sym->back_link] = sym_pos;
 
-    // Set the back link to the hash index
-    sym->back_link = hash_i;
-
-    // If this hash position does not have any symbol
-    if (hash_table[hash_i] != NULL_SYM)
-    {
-        sym->hash_link = hash_table[hash_i];
-    }
-
-    // We set the current symbol as the first symbol in this hash link position
-    hash_table[hash_i] = sym_pos;
-
-    return sym_pos; // Return index to the symbol we just created.
+    return sym_pos;
 }
 
 /* Enter a constant into the symbol table. The value is an integer. The type
