@@ -286,9 +286,12 @@ sym_index ast_divide::type_check()
 sym_index semantic::check_binop2(ast_binaryoperation *node, string s)
 {
     /* Your code here */
-    if (node->left->type != integer_type)
+    sym_index left_type  = node->left ->type_check(),
+              right_type = node->right->type_check();
+
+    if (left_type != integer_type)
         type_error(node->pos) << "Left operand of " << s << " operator must be of integer type\n";
-    if (node->left->type != integer_type)
+    if (right_type != integer_type)
         type_error(node->pos) << "Right operand of " << s << " operator must be of integer type\n";
 
     return integer_type;
