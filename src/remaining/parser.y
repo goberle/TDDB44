@@ -235,18 +235,41 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                         new position_information(@1.first_line,
                                                  @1.first_column);
 
-                    constant_symbol * sym = sym_tab->get_symbol($3->sym_p)->get_constant_symbol();
+                    symbol *sym = sym_tab->get_symbol($3->sym_p);
 
-                    if (sym->type == integer_type)
-                    {
-                        sym_tab->enter_constant(pos, $1, sym->type, sym->const_value.ival);
-                    }
-                    else if (sym->type == real_type)
-                    {
-                        sym_tab->enter_constant(pos, $1, sym->type, sym->const_value.rval);
+                    if (sym != NULL && sym->tag == SYM_CONST) {
+                        constant_symbol *cons_sym = sym->get_constant_symbol();
+
+                        if (cons_sym->type == integer_type)
+                        {
+                            sym_tab->enter_constant(pos, $1, cons_sym->type, cons_sym->const_value.ival);
+                        }
+                        else if (cons_sym->type == real_type)
+                        {
+                            sym_tab->enter_constant(pos, $1, cons_sym->type, cons_sym->const_value.rval);
+                        }
                     }
                 }
-                
+                | T_IDENT T_EQ error T_SEMICOLON /* Everything else is not supported (ex. const array[x] of ...) */
+                {
+                    yyerror("Constant declaration not allowed.");
+                }
+                | T_IDENT T_EQ integer error 
+                {
+                    yyerror("Missing semicolon.");
+                }
+                | T_IDENT T_EQ real error
+                {
+                    yyerror("Missing semicolon.");
+                }
+                | T_IDENT T_EQ T_STRINGCONST error
+                {
+                    yyerror("Missing semicolon.");
+                }
+                | T_IDENT T_EQ const_id error
+                {
+                    yyerror("Missing semicolon.");
+                }
                 ;
 
 
@@ -325,7 +348,7 @@ var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                         }
                     }
                 }
-                
+
                 ;
 
 
@@ -504,6 +527,7 @@ opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                 }
                 | T_LEFTPAR error T_RIGHTPAR
                 {
+                    yyerror("function parameters error");
                     $$ = NULL;
                 }
                 | /* empty */
@@ -574,6 +598,16 @@ stmt_list       : stmt
                     else
                         $$ = $1;
                 }
+                | error T_SEMICOLON stmt
+                {
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
+                    if ($3 != NULL)
+                        $$ = new ast_stmt_list(pos, $3);
+                    else
+                        $$ = NULL;
+                }
                 ;
 
 
@@ -585,6 +619,21 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                                                  @1.first_column);
                     $$ = new ast_if(pos, $2, $4, $5, $6);
                 }
+                | T_IF error T_THEN stmt_list elsif_list else_part T_END
+                {
+                    yyerror("if condition error");
+                    $$ = NULL;
+                }
+                | T_IF expr T_THEN error T_END
+                {
+                    yyerror("if statement list error");
+                    $$ = NULL;
+                }
+                | T_IF error T_THEN error T_END
+                {
+                    yyerror("if condition and statement list error");
+                    $$ = NULL;
+                }
                 | T_WHILE expr T_DO stmt_list T_END
                 {
                     /* Your code here */
@@ -592,6 +641,21 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                         new position_information(@1.first_line,
                                                  @1.first_column);
                     $$ = new ast_while(pos, $2, $4);
+                }
+                | T_WHILE error T_DO stmt_list T_END
+                {
+                    yyerror("while condition error");
+                    $$ = NULL;
+                }
+                | T_WHILE expr T_DO error T_END
+                {
+                    yyerror("while statement list error");
+                    $$ = NULL;
+                }
+                | T_WHILE error T_DO error T_END
+                {
+                    yyerror("while condition and statement list error");
+                    $$ = NULL;
                 }
                 | proc_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                 {
@@ -601,6 +665,11 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                                                  @1.first_column);
                     $$ = new ast_procedurecall(pos, $1, $3);
 
+                }
+                | proc_id T_LEFTPAR error T_RIGHTPAR
+                {
+                    yyerror("procedure arguments error");
+                    $$ = NULL;
                 }
                 | lvariable T_ASSIGN expr
                 {
@@ -628,13 +697,14 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                                                  @1.first_column);
                     $$ = new ast_return(pos);
                 }
-                
+
                 | /* empty */
                 {
                     /* Your code here */
                     $$ = NULL;
                 }
                 ;
+
 
 lvariable       : lvar_id
                 {
@@ -665,7 +735,11 @@ rvariable       : rvar_id
                                          $1,
                                          $3);
                 }
-                
+                | array_id T_LEFTBRACKET error T_RIGHTBRACKET
+                {
+                    yyerror("array index error");
+                    $$ = NULL;
+                }
                 ;
 
 
@@ -909,7 +983,6 @@ factor          : rvariable
                     /* Your code here */
                     $$ = $2;
                 }
-                
                 ;
 
 
@@ -923,8 +996,6 @@ func_call       : func_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                     $$->type = sym_tab->get_symbol_type($1->sym_p);
 
                 }
-                |
-                
                 ;
 
 
@@ -996,6 +1067,8 @@ lvar_id         : id
                     $$ = $1;
                 }
                 ;
+
+
 rvar_id         : id
                 {
                     // Make sure this id is really declared as an rvariable.
