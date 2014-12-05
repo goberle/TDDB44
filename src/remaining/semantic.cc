@@ -86,18 +86,23 @@ void semantic::check_parameters(ast_id *call_id,
     /* Your code here */
 
     // If we have parameters
-    if (param_list == NULL)
-        return;
-
-    param_list->type_check();
+    if (param_list != NULL)
+        param_list->type_check();;
 
     symbol * sym = sym_tab->get_symbol(call_id->sym_p);
     parameter_symbol * formals = NULL;
 
-    if (sym->tag == SYM_FUNC)
-        formals = sym->get_function_symbol()->last_parameter;
-    if (sym->tag == SYM_PROC)
+    switch (sym->tag)
+    {
+    case SYM_PROC:
         formals = sym->get_procedure_symbol()->last_parameter;
+        break;
+    case SYM_FUNC:
+        formals = sym->get_function_symbol()->last_parameter;
+        break;
+    default:
+        fatal("callable symbol of unknown type");
+    }
 
     chk_param(call_id, formals, param_list);
 }
