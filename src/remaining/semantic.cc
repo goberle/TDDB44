@@ -49,7 +49,7 @@ bool semantic::chk_param(ast_id *env,
 
     if (formals == NULL)
     {
-        type_error(env->pos) << "More actual than formal parameters.\n";
+        type_error(actuals->pos) << "More actual than formal parameters.\n";
         return false;
     }
 
@@ -70,7 +70,7 @@ bool semantic::chk_param(ast_id *env,
             actuals->last_expr = add_cast(actuals->last_expr);
         else
         {
-            type_error(env->pos) << "Type discrepancy between formal and actual parameters.\n";
+            type_error(actuals->pos) << "Type discrepancy between formal and actual parameters.\n";
             return false;
         }
     }
@@ -389,7 +389,7 @@ sym_index ast_assign::type_check()
               rhs_type = rhs->type_check();
 
     if (lhs_type == integer_type && rhs_type != integer_type)
-        type_error(this->pos) << "Can't assign a real value to an integer variable.\n";
+        type_error(rhs->pos) << "Can't assign a real value to an integer variable.\n";
     else if (lhs_type == real_type && rhs_type != real_type)
         rhs = type_checker->add_cast(rhs);
 
