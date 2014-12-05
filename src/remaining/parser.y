@@ -178,7 +178,7 @@ prog_decl       : prog_head T_SEMICOLON const_part variable_part
 
 prog_head       : T_PROGRAM T_IDENT
                 {
-                    /* DONE ? Your code here */
+                    /* Your code here */
                     position_information *pos =
                         new position_information(@1.first_line,
                                                  @1.first_column);
@@ -203,7 +203,7 @@ const_decls     : const_decl
 
 const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                 {
-                    /* DONE ? Your code here */
+                    /* Your code here */
                     position_information *pos =
                         new position_information(@1.first_line,
                                                  @1.first_column);
@@ -212,7 +212,7 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                 }
                 | T_IDENT T_EQ real T_SEMICOLON
                 {
-                    /* DONE ? Your code here */
+                    /* Your code here */
                     position_information *pos =
                         new position_information(@1.first_line,
                                                  @1.first_column);
@@ -252,23 +252,23 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                 }
                 | T_IDENT T_EQ error T_SEMICOLON /* Everything else is not supported (ex. const array[x] of ...) */
                 {
-                    yyerror("Constant declaration not allowed.");
+                    yyerror("constant declaration not allowed.");
                 }
                 | T_IDENT T_EQ integer error 
                 {
-                    yyerror("Missing semicolon.");
+                    yyerror("missing semicolon.");
                 }
                 | T_IDENT T_EQ real error
                 {
-                    yyerror("Missing semicolon.");
+                    yyerror("missing semicolon.");
                 }
                 | T_IDENT T_EQ T_STRINGCONST error
                 {
-                    yyerror("Missing semicolon.");
+                    yyerror("missing semicolon.");
                 }
                 | T_IDENT T_EQ const_id error
                 {
-                    yyerror("Missing semicolon.");
+                    yyerror("missing semicolon.");
                 }
                 ;
 
@@ -294,7 +294,7 @@ var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET integer T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
-                    /* DONE ? Your code here */
+                    /* Your code here */
                     position_information *pos =
                         new position_information(@1.first_line,
                                                  @1.first_column);
@@ -470,7 +470,7 @@ proc_decl       : proc_head opt_param_list T_SEMICOLON const_part variable_part
 
 func_decl       : func_head opt_param_list T_COLON type_id T_SEMICOLON const_part variable_part
                 {
-                    /* DONE ? Your code here */
+                    /* Your code here */
                     $$ = $1;
                     sym_tab->set_symbol_type($1->sym_p, $4->sym_p);
 
@@ -522,7 +522,7 @@ func_head       : T_FUNCTION T_IDENT
 
 opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                 {
-                    /* DONE ? Your code here */
+                    /* Your code here */
                     $$ = $2;
                 }
                 | T_LEFTPAR error T_RIGHTPAR
@@ -569,7 +569,7 @@ param           : T_IDENT T_COLON type_id
 
 comp_stmt       : T_BEGIN stmt_list T_END
                 {
-                    /* DONE ? Your code here */
+                    /* Your code here */
                     $$ = $2;
                 }
                 ;
@@ -589,7 +589,7 @@ stmt_list       : stmt
                 }
                 | stmt_list T_SEMICOLON stmt
                 {
-                    /* DONE ? Your code here */
+                    /* Your code here */
                     position_information *pos =
                         new position_information(@1.first_line,
                                                  @1.first_column);
@@ -598,7 +598,7 @@ stmt_list       : stmt
                     else
                         $$ = $1;
                 }
-                | error T_SEMICOLON stmt
+                | error T_SEMICOLON stmt /* allows to avoid stopping the tree construction and permits to detect others errors in the leaf nodes */
                 {
                     position_information *pos =
                         new position_information(@1.first_line,
@@ -680,6 +680,11 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                     $$ = new ast_assign(pos, $1, $3);
 
                 }
+                | lvariable T_ASSIGN error
+                {
+                    yyerror("assignement statement expression error");
+                    $$ = NULL;
+                }
                 | T_RETURN expr
                 {
                     /* Your code here */
@@ -688,6 +693,11 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                                                  @1.first_column);
                     $$ = new ast_return(pos, $2);
 
+                }
+                | T_RETURN error
+                {
+                    yyerror("return expression error");
+                    $$ = NULL;
                 }
                 | T_RETURN
                 {

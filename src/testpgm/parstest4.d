@@ -10,13 +10,12 @@ const
 function echo(i:integer) : integer;
 begin;
     i := 1;
-    i := 2;
-    return 1;
+    return i;
 end;
 
 begin
     i := echo(1,2);
-    i := 4?i;
+    i := 4;
     if (4>i) then
       i := i; 
     end;
