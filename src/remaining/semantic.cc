@@ -239,7 +239,7 @@ sym_index semantic::check_binop1(ast_binaryoperation *node)
         if (right_type != real_type)
             node->right = add_cast(node->right);
 
-        return real_type;
+        return left_type;
     }
 
     return integer_type; // You don't have to use this method but it might be convenient
