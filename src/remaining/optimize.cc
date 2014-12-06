@@ -199,30 +199,30 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node)
             return node;
         }
     }
-    else if (op->left->tag == AST_REAL && op->right->tag == AST_REAL)
+    else if (op->left->type == real_type && op->right->type == real_type)
     {
-        long lv = get_value<double>(op->left);
-        long rv = get_value<double>(op->right);
+        double lv = get_value<double>(op->left);
+        double rv = get_value<double>(op->right);
 
         switch (op->tag)
         {
         case AST_ADD:
-            return new ast_integer(op->pos, lv + rv);
+            return new ast_real(op->pos, lv + rv);
 
         case AST_SUB:
-            return new ast_integer(op->pos, lv - rv);
+            return new ast_real(op->pos, lv - rv);
 
         case AST_MULT:
-            return new ast_integer(op->pos, lv * rv);
+            return new ast_real(op->pos, lv * rv);
 
         case AST_DIVIDE:
-            return new ast_integer(op->pos, lv / rv);
+            return new ast_real(op->pos, lv / rv);
 
         case AST_AND:
-            return new ast_integer(op->pos, lv && rv);
+            return new ast_real(op->pos, lv && rv);
 
         case AST_OR:
-            return new ast_integer(op->pos, lv || rv);
+            return new ast_real(op->pos, lv || rv);
 
         default:
             return node;
