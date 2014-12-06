@@ -49,7 +49,9 @@ public:
 
         case AST_ID:
             return *((T *)&sym_tab->get_symbol(node->get_ast_id()->sym_p)->get_constant_symbol()->const_value);
+
         default:
+            fatal("not possible to get a value");
             return 0;
         }
     }
