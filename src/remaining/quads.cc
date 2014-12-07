@@ -218,7 +218,7 @@ sym_index ast_uminus::generate_quads(quad_list &q)
         q += new quadruple(q_rminus, arg, NULL_SYM, tmp);
     }
     else
-        fatal("Illegal type in ast_indexed::generate_assignment()");
+        fatal("Illegal type in ast_uminus::generate_quads()");
 
     return tmp;
 }
@@ -240,7 +240,7 @@ sym_index ast_cast::generate_quads(quad_list &q)
         q += new quadruple(q_itor, arg, NULL_SYM, tmp);
     }
     else
-        fatal("Illegal type in ast_indexed::generate_assignment()");
+        fatal("Illegal type in ast_cast::generate_quads()");
 
     return tmp;
 }
