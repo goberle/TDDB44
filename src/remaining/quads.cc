@@ -187,13 +187,15 @@ sym_index ast_not::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+
     sym_index tmp;
+    sym_index arg = expr->generate_quads(q);
+
     if (expr->type == integer_type)
     {
         tmp = sym_tab->gen_temp_var(integer_type);
-        sym_index arg = expr->generate_quads(q);
 
-        q += new quadruple(q_inot, arg, NULL_SYM, tmp);
+        q += new quadruple(q_inot,  NULL_SYM, arg, tmp);
     }
     else
         fatal("Illegal type in ast_not::generate_quads()");
@@ -210,13 +212,13 @@ sym_index ast_uminus::generate_quads(quad_list &q)
 
     sym_index tmp;
 
-    if (type == integer_type)
+    if (expr->type == integer_type)
     {
         tmp = sym_tab->gen_temp_var(integer_type);
 
         q += new quadruple(q_iminus, arg, NULL_SYM, tmp);
     }
-    else if (type == real_type)
+    else if (expr->type == real_type)
     {
         tmp = sym_tab->gen_temp_var(real_type);
 
