@@ -87,10 +87,10 @@ void semantic::check_parameters(ast_id *call_id,
 
     // If we have parameters
     if (param_list != NULL)
-        param_list->type_check();;
+        param_list->type_check();
 
-    symbol * sym = sym_tab->get_symbol(call_id->sym_p);
-    parameter_symbol * formals = NULL;
+    symbol *sym = sym_tab->get_symbol(call_id->sym_p);
+    parameter_symbol *formals = NULL;
 
     switch (sym->tag)
     {
@@ -172,9 +172,9 @@ sym_index ast_expr_list::type_check()
         preceding->type_check();
 
     if (last_expr != NULL)
-        last_expr ->type_check();
+        last_expr->type_check();
 
-    return last_expr->type;
+    return void_type;
 }
 
 
@@ -211,7 +211,7 @@ sym_index ast_indexed::type_check()
     if (index->type_check() != integer_type)
         type_error(pos) << "expression type is not integer for array index\n";
 
-    return sym_tab->get_symbol_type(id->sym_p);
+    return id->type_check();
 }
 
 ast_expression * semantic::add_cast (ast_expression * expr)
@@ -229,7 +229,7 @@ sym_index semantic::check_binop1(ast_binaryoperation *node)
     // parameters but me of same type
     // if one is different from the other we cast any that is not of real type
 
-    sym_index left_type  = node->left ->type_check(),
+    sym_index left_type  = node->left->type_check(),
               right_type = node->right->type_check();
 
     if (left_type != right_type)
@@ -248,7 +248,6 @@ sym_index semantic::check_binop1(ast_binaryoperation *node)
 sym_index ast_add::type_check()
 {
     /* Your code here */
-
     return type = type_checker->check_binop1(this);
 }
 
@@ -269,7 +268,6 @@ sym_index ast_mult::type_check()
 sym_index ast_divide::type_check()
 {
     /* Your code here */
-
     // Both parameters MUST be of real type
 
     if (left->type_check() != real_type)
@@ -415,7 +413,7 @@ sym_index ast_if::type_check()
 {
     /* Your code here */
     if (condition->type_check() != integer_type)
-            type_error(pos) << "condition must be of integer type\n";
+        type_error(pos) << "condition must be of integer type\n";
 
     body->type_check();
 
@@ -477,7 +475,6 @@ sym_index ast_functioncall::type_check()
 {
     /* Your code here */
     type_checker->check_parameters(id, parameter_list);
-
     return type;
 }
 
