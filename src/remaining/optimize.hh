@@ -33,6 +33,10 @@ public:
     // It's needed to find out which nodes are eligible for optimization.
     bool is_binop(ast_expression *);
 
+    // Returns if the argument is a subclass of ast_binaryrelation.
+    // It's needed to find out which nodes are eligibile for optimization.
+    bool is_binrel(ast_expression *);
+
     // Return if the argument is to be considered as constant
     bool is_const(ast_expression *);
 
@@ -60,6 +64,8 @@ public:
     // so the ast_* nodes can access it. Another solution would be to make it
     // a static method in the optimize.cc file... A matter of preference.
     ast_expression *fold_constants(ast_expression *);
+    ast_expression *fold_binop(ast_expression *);
+    ast_expression *fold_binrel(ast_expression *);
 };
 
 

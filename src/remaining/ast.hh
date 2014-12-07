@@ -142,6 +142,7 @@ class quad_list;
 /* Class stubs to allow referencing the classes below before they're declared.
    See below. */
 class ast_binaryoperation;
+class ast_binaryrelation;
 class ast_stmt_list;
 class ast_id;
 class ast_integer;
@@ -279,6 +280,14 @@ public:
         fatal("Illegal downcast to ast_binaryoperation from ast_expression");
         return NULL;
     }
+
+    // This, however, is very illegal. It's also only used in optimize.cc, to
+    // allow us to downcast an ast_expression to an ast_binaryrelation.
+    // See the comments in that file for more information.
+    virtual ast_binaryrelation *get_ast_binaryrelation() {
+        fatal("Illegal downcast to ast_binaryrelation from ast_expression");
+        return NULL;
+    }
 };
 
 
@@ -309,6 +318,12 @@ public:
     virtual void optimize();
 
     virtual sym_index generate_quads(quad_list &) = 0;
+
+    // Needed for safe downcasting.
+    virtual ast_binaryrelation *get_ast_binaryrelation() {
+        fatal("Illegal downcast to ast_binaryrelation");
+        return NULL;
+    }
 };
 
 
@@ -879,6 +894,11 @@ public:
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
+
+    // Safe downcasts.
+    virtual ast_equal *get_ast_binaryrelation() {
+      return this;
+    }
 };
 
 
@@ -899,6 +919,11 @@ public:
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
+
+    // Safe downcasts.
+    virtual ast_notequal *get_ast_binaryrelation() {
+      return this;
+    }
 };
 
 
@@ -919,6 +944,11 @@ public:
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
+
+    // Safe downcasts.
+    virtual ast_lessthan *get_ast_binaryrelation() {
+      return this;
+    }
 };
 
 
@@ -939,6 +969,11 @@ public:
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
+
+    // Safe downcasts.
+    virtual ast_greaterthan *get_ast_binaryrelation() {
+        return this;
+    }
 };
 
 
