@@ -95,7 +95,6 @@ void ast_stmt_list::optimize()
 void ast_expr_list::optimize()
 {
     /* Your code here */
-
     if (preceding != NULL)
         preceding->optimize();
 
@@ -108,7 +107,6 @@ void ast_expr_list::optimize()
 void ast_elsif_list::optimize()
 {
     /* Your code here */
-
     if (preceding != NULL)
         preceding->optimize();
 
@@ -353,6 +351,12 @@ void ast_if::optimize()
     /* Your code here */
     condition = optimizer->fold_constants(condition);
     body->optimize();
+    
+    if (elsif_list != NULL)
+      elsif_list->optimize();
+
+    if (else_body != NULL)
+      else_body->optimize();
 }
 
 
