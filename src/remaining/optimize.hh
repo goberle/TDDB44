@@ -33,10 +33,39 @@ public:
     // It's needed to find out which nodes are eligible for optimization.
     bool is_binop(ast_expression *);
 
+    // Returns if the argument is a subclass of ast_binaryrelation.
+    // It's needed to find out which nodes are eligibile for optimization.
+    bool is_binrel(ast_expression *);
+
+    // Return if the argument is to be considered as constant
+    bool is_const(ast_expression *);
+
+    template <typename T>
+    T get_value(ast_expression * node)
+    {
+        switch (node->tag)
+        {
+        case AST_INTEGER:
+            return node->get_ast_integer()->value;
+
+        case AST_REAL:
+            return node->get_ast_real()->value;
+
+        case AST_ID:
+            return *((T *)&sym_tab->get_symbol(node->get_ast_id()->sym_p)->get_constant_symbol()->const_value);
+
+        default:
+            fatal("not possible to get a value");
+            return 0;
+        }
+    }
+
     // This is a convenient method used in optimize.cc. It has to be public
     // so the ast_* nodes can access it. Another solution would be to make it
     // a static method in the optimize.cc file... A matter of preference.
     ast_expression *fold_constants(ast_expression *);
+    ast_expression *fold_binop(ast_expression *);
+    ast_expression *fold_binrel(ast_expression *);
 };
 
 
