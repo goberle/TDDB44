@@ -252,61 +252,102 @@ sym_index ast_cast::generate_quads(quad_list &q)
     return tmp;
 }
 
+sym_index do_binary_operation (quad_list & q, quad_op_type integer_qop, quad_op_type real_qop, ast_binaryoperation * op)
+{
+    sym_index left = op->left->generate_quads(q);
+    sym_index right = op->right->generate_quads(q);
+
+    sym_index res = sym_tab->gen_temp_var(op->type);
+
+    if (op->left->type == integer_type && op->right->type == integer_type)
+    {
+        q += new quadruple(integer_qop, left, right, res);
+    }
+    else if (op->left->type == real_type && op->right->type == real_type)
+    {
+        q += new quadruple(real_qop, left, right, res);
+    }
+    else
+        fatal("operand types not supported.");
+
+    return res;
+}
+
+sym_index do_binary_relation (quad_list & q, quad_op_type integer_qop, quad_op_type real_qop, ast_binaryrelation * op)
+{
+    sym_index left = op->left->generate_quads(q);
+    sym_index right = op->right->generate_quads(q);
+
+    sym_index res = sym_tab->gen_temp_var(op->type);
+
+    if (op->left->type == integer_type && op->right->type == integer_type)
+    {
+        q += new quadruple(integer_qop, left, right, res);
+    }
+    else if (op->left->type == real_type && op->right->type == real_type)
+    {
+        q += new quadruple(real_qop, left, right, res);
+    }
+    else
+        fatal ("operand types not supported.");
+
+    return res;
+}
 
 sym_index ast_add::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_operation(q, q_iplus, q_rplus, this);
 }
 
 sym_index ast_sub::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_operation(q, q_iminus, q_rminus, this);
 }
 
 sym_index ast_mult::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_operation(q, q_imult, q_rmult, this);
 }
 
 sym_index ast_divide::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_operation(q, q_rdivide, q_rdivide, this);
 }
 
 sym_index ast_idiv::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_operation(q, q_idivide, q_idivide, this);
 }
 
 sym_index ast_mod::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_operation(q, q_imod, q_imod, this);
 }
 
 sym_index ast_or::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_operation(q, q_ior, q_ior, this);
 }
 
 sym_index ast_and::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_operation(q, q_iand, q_iand, this);
 }
 
 
@@ -315,28 +356,28 @@ sym_index ast_equal::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_relation(q, q_ieq, q_req, this);
 }
 
 sym_index ast_notequal::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_relation(q, q_ine, q_rne, this);
 }
 
 sym_index ast_lessthan::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_relation(q, q_ilt, q_rlt, this);
 }
 
 sym_index ast_greaterthan::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return do_binary_relation(q, q_igt, q_rgt, this);
 }
 
 
