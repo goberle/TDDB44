@@ -228,6 +228,22 @@ sym_index ast_cast::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+
+    sym_index arg = expr->generate_quads(q);
+
+    sym_index tmp;
+
+    if (type == real_type)
+    {
+        tmp = sym_tab->gen_temp_var(integer_type);
+
+        q += new quadruple(q_itor, arg, NULL_SYM, tmp);
+    }
+    else
+        fatal("Illegal type in ast_indexed::generate_assignment()");
+
+    return tmp;
+
     return NULL_SYM;
 }
 
