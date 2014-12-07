@@ -243,8 +243,6 @@ sym_index ast_cast::generate_quads(quad_list &q)
         fatal("Illegal type in ast_indexed::generate_assignment()");
 
     return tmp;
-
-    return NULL_SYM;
 }
 
 
