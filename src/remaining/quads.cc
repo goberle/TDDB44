@@ -138,7 +138,9 @@ sym_index ast_id::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+
+    // Return the index where we can find this variable
+    return sym_p;
 }
 
 
@@ -146,15 +148,30 @@ sym_index ast_integer::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+
+    // Generate a temp integer variable
+    sym_index tmp = sym_tab->gen_temp_var(integer_type);
+
+    // Affect the ast_integer value to this temp variable
+    q += new quadruple(q_iload, value, NULL_SYM, tmp);
+
+    // return the index in the sym_tab to this temp variable
+    return tmp;
 }
 
 
 sym_index ast_real::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+
+    // Generate a temp real variable
+    sym_index tmp = sym_tab->gen_temp_var(real_type);
+
+    // Affect the real value to this temp variable
+    q += new quadruple(q_rload, value, NULL_SYM, tmp);
+
+    // return the index in the sym_tab to this temp variable
+    return tmp;
 }
 
 
