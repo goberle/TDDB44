@@ -584,8 +584,8 @@ sym_index ast_if::generate_quads(quad_list &q)
     USE_Q;
     /* Your code here */
 
-    sym_index end_label = sym_tab->get_next_label();
     sym_index nxt_label = sym_tab->get_next_label();
+    sym_index end_label = sym_tab->get_next_label();
 
     // get the result of the condition
     sym_index cond = condition->generate_quads(q);
