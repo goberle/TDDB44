@@ -494,6 +494,25 @@ void ast_elsif::generate_quads_and_jump(quad_list &q, int label)
 {
     USE_Q;
     /* Your code here */
+
+    // new label marking the next part of the bloc
+    sym_index nxt_label = sym_tab->get_next_label();
+
+    // condition for running the bloc
+    sym_index cnd = condition->generate_quads(q);
+
+    // jump to the next part of the bloc if we don't run this one
+    q += new quadruple(q_jmpf, nxt_label, cnd, NULL_SYM);
+
+    // instructions for this body
+    if (body != NULL);
+        body->generate_quads(q);
+
+    // jump to the end of the bloc if we ran the body instructions
+    q += new quadruple(q_jmp, label, NULL_SYM, NULL_SYM);
+
+    // mark the next part of the bloc here
+    q += new quadruple(q_labl, nxt_label, NULL_SYM, NULL_SYM);
 }
 
 
@@ -503,6 +522,16 @@ void ast_elsif_list::generate_quads_and_jump(quad_list &q, int label)
 {
     USE_Q;
     /* Your code here */
+
+    if (preceding != NULL)
+    {
+        preceding->generate_quads_and_jump(q, label);
+    }
+
+    if (last_elsif != NULL)
+    {
+        last_elsif->generate_quads_and_jump(q, label);
+    }
 }
 
 
@@ -511,6 +540,41 @@ sym_index ast_if::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+
+    sym_index end_label = sym_tab->get_next_label();
+    sym_index nxt_label = sym_tab->get_next_label();
+
+    // get the result of the condition
+    sym_index cond = condition->generate_quads(q);
+
+    // Jump to the next part if the condition is false
+    q += new quadruple(q_jmpf, nxt_label, cond, NULL_SYM);
+
+    // If it was true we execute the body code
+    if (body != NULL)
+        body->generate_quads(q);
+
+    // After the bloc execution, jump to the end of the bloc
+    q += new quadruple(q_jmp, end_label, NULL_SYM, NULL_SYM);
+
+    // Mark this spot as the next part of the bloc
+    q += new quadruple(q_labl, nxt_label, NULL_SYM, NULL_SYM);
+
+    // evaluate other parts of the bloc
+    if (elsif_list != NULL)
+    {
+        elsif_list->generate_quads_and_jump(q, end_label);
+    }
+
+    // else part is run if no previous bloc was executed (and jumped to end_label)
+    if (else_body != NULL)
+    {
+        else_body->generate_quads(q);
+    }
+
+    // Mark the end of the bloc
+    q += new quadruple(q_labl, end_label, NULL_SYM, NULL_SYM);
+
     return NULL_SYM;
 }
 
