@@ -415,7 +415,8 @@ sym_index ast_if::type_check()
     if (condition->type_check() != integer_type)
         type_error(pos) << "condition must be of integer type\n";
 
-    body->type_check();
+    if (body != NULL)
+        body->type_check();
 
     if (elsif_list != NULL)
         elsif_list->type_check();
@@ -500,7 +501,8 @@ sym_index ast_elsif::type_check()
     if (condition->type_check() != integer_type)
         type_error(pos) << "Condition must be of integer type\n";
 
-    body->type_check();
+    if (body != NULL)
+        body->type_check();
 
     return void_type;
 }
