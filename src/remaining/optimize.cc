@@ -40,6 +40,21 @@ bool ast_optimizer::is_binop(ast_expression *node)
 }
 
 
+/* Returns 1 if an AST expression is a subclass of ast_binaryrelation,
+ * ie, eligible for constant folding. */
+bool ast_optimizer::is_binrel(ast_expression *node)
+{
+    switch (node->tag) {
+    case AST_EQUAL:
+    case AST_NOTEQUAL:
+    case AST_GREATERTHAN:
+    case AST_LESSTHAN:
+        return true;
+    default:
+        return false;
+    }
+}
+
 
 /* We overload this method for the various ast_node subclasses that can
    appear in the AST. By use of virtual (dynamic) methods, we ensure that
@@ -95,7 +110,6 @@ void ast_stmt_list::optimize()
 void ast_expr_list::optimize()
 {
     /* Your code here */
-
     if (preceding != NULL)
         preceding->optimize();
 
@@ -108,7 +122,6 @@ void ast_expr_list::optimize()
 void ast_elsif_list::optimize()
 {
     /* Your code here */
-
     if (preceding != NULL)
         preceding->optimize();
 
@@ -147,18 +160,9 @@ bool ast_optimizer::is_const(ast_expression * expression)
     }
 }
 
-
-/* This convenience method is used to apply constant folding to all
-   binary operations. It returns either the resulting optimized node or the
-   original node if no optimization could be performed. */
-ast_expression *ast_optimizer::fold_constants(ast_expression *node)
+ast_expression *ast_optimizer::fold_binop(ast_expression *node)
 {
-    node->optimize();
-
-    if (!is_binop(node))
-        return node;
-
-    ast_binaryoperation * op = node->get_ast_binaryoperation();
+    ast_binaryoperation *op = node->get_ast_binaryoperation();
 
     op->left  = fold_constants(op->left);
     op->right = fold_constants(op->right);
@@ -176,25 +180,18 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node)
         {
         case AST_ADD:
             return new ast_integer(op->pos, lv + rv);
-
         case AST_SUB:
             return new ast_integer(op->pos, lv - rv);
-
         case AST_MULT:
             return new ast_integer(op->pos, lv * rv);
-
         case AST_AND:
             return new ast_integer(op->pos, lv && rv);
-
         case AST_OR:
             return new ast_integer(op->pos, lv || rv);
-
         case AST_IDIV:
             return new ast_integer(op->pos, lv / rv);
-
         case AST_MOD:
             return new ast_integer(op->pos, lv % rv);
-
         default:
             return node;
         }
@@ -208,26 +205,69 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node)
         {
         case AST_ADD:
             return new ast_real(op->pos, lv + rv);
-
         case AST_SUB:
             return new ast_real(op->pos, lv - rv);
-
         case AST_MULT:
             return new ast_real(op->pos, lv * rv);
-
         case AST_DIVIDE:
             return new ast_real(op->pos, lv / rv);
-
         case AST_AND:
             return new ast_real(op->pos, lv && rv);
-
         case AST_OR:
             return new ast_real(op->pos, lv || rv);
-
         default:
             return node;
         }
     }
+
+    return node;
+}
+
+ast_expression *ast_optimizer::fold_binrel(ast_expression *node)
+{
+    ast_binaryrelation *op = node->get_ast_binaryrelation();
+
+    op->left  = fold_constants(op->left);
+    op->right = fold_constants(op->right);
+
+    if (!(is_const(op->left) && is_const(op->right)))
+      return node;
+
+    if (op->left->type == integer_type && op->right->type == integer_type)
+    {
+        long lv = get_value<long>(op->left);
+        long rv = get_value<long>(op->right);
+
+        switch (op->tag) {
+        case AST_EQUAL:
+            return new ast_integer(op->pos, lv == rv);
+        case AST_NOTEQUAL:
+            return new ast_integer(op->pos, lv != rv);
+        case AST_GREATERTHAN:
+            return new ast_integer(op->pos, lv > rv);
+        case AST_LESSTHAN:
+            return new ast_integer(op->pos, lv < rv);
+        default:
+            return node;
+        }
+    }
+
+    return node;
+}
+
+
+/* This convenience method is used to apply constant folding to all
+   binary operations. It returns either the resulting optimized node or the
+   original node if no optimization could be performed. */
+ast_expression *ast_optimizer::fold_constants(ast_expression *node)
+{
+    node->optimize();
+
+    if (is_binop(node))
+        return optimizer->fold_binop(node);
+
+    if (is_binrel(node))
+        return optimizer->fold_binrel(node);
 
     return node;
 }
@@ -353,6 +393,12 @@ void ast_if::optimize()
     /* Your code here */
     condition = optimizer->fold_constants(condition);
     body->optimize();
+    
+    if (elsif_list != NULL)
+      elsif_list->optimize();
+
+    if (else_body != NULL)
+      else_body->optimize();
 }
 
 
