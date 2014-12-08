@@ -195,7 +195,7 @@ sym_index ast_not::generate_quads(quad_list &q)
     {
         tmp = sym_tab->gen_temp_var(integer_type);
 
-        q += new quadruple(q_inot,  NULL_SYM, arg, tmp);
+        q += new quadruple(q_inot,  arg, NULL_SYM, tmp);
     }
     else
         fatal("Illegal type in ast_not::generate_quads()");
@@ -216,13 +216,13 @@ sym_index ast_uminus::generate_quads(quad_list &q)
     {
         tmp = sym_tab->gen_temp_var(integer_type);
 
-        q += new quadruple(q_iminus, arg, NULL_SYM, tmp);
+        q += new quadruple(q_iuminus, arg, NULL_SYM, tmp);
     }
     else if (expr->type == real_type)
     {
         tmp = sym_tab->gen_temp_var(real_type);
 
-        q += new quadruple(q_rminus, arg, NULL_SYM, tmp);
+        q += new quadruple(q_ruminus, arg, NULL_SYM, tmp);
     }
     else
         fatal("Illegal type in ast_uminus::generate_quads()");
@@ -670,7 +670,7 @@ sym_index ast_indexed::generate_quads(quad_list &q)
     else
         fatal ("Illegal type in ast_indexed::generate_quads()");
 
-    return NULL_SYM;
+    return res;
 }
 
 
