@@ -610,6 +610,26 @@ sym_index ast_indexed::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+
+    sym_index offset = index->generate_quads(q);
+
+    sym_index res;
+
+    if (type == integer_type)
+    {
+        res = sym_tab->gen_temp_var(integer_type);
+
+        q += new quadruple(q_irindex, id->sym_p, offset, res);
+    }
+    else if (type == real_type)
+    {
+        res = sym_tab->gen_temp_var(real_type);
+
+        q += new quadruple(q_rrindex, id->sym_p, offset, res);
+    }
+    else
+        fatal ("Illegal type in ast_indexed::generate_quads()");
+
     return NULL_SYM;
 }
 
