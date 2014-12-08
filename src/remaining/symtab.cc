@@ -172,7 +172,7 @@ long symbol_table::get_next_label()
 sym_index symbol_table::gen_temp_var(sym_index type)
 {
     ostringstream tmp_name;
-    static int temp_var_cnt = 0;
+    static int temp_var_cnt = 1;
 
     /* Your code here */
     if (type == void_type)
