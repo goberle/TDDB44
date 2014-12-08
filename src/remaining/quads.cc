@@ -505,7 +505,7 @@ void ast_elsif::generate_quads_and_jump(quad_list &q, int label)
     q += new quadruple(q_jmpf, nxt_label, cnd, NULL_SYM);
 
     // instructions for this body
-    if (body != NULL);
+    if (body != NULL)
         body->generate_quads(q);
 
     // jump to the end of the bloc if we ran the body instructions
@@ -585,18 +585,15 @@ sym_index ast_return::generate_quads(quad_list &q)
     USE_Q;
     /* Your code here */
 
-    // the label at the function end
-    sym_index end_label = sym_tab->get_symbol(sym_tab->current_environment())->get_function_symbol()->label_nr;
-
     sym_index return_val = value->generate_quads(q);
 
     if (value->type == integer_type)
     {
-        q += new quadruple(q_ireturn, end_label, return_val, NULL_SYM);
+        q += new quadruple(q_ireturn, q.last_label, return_val, NULL_SYM);
     }
     else if (value->type == real_type)
     {
-        q += new quadruple(q_rreturn, end_label, return_val, NULL_SYM);
+        q += new quadruple(q_rreturn, q.last_label, return_val, NULL_SYM);
     }
     else
         fatal ("Illegal type in ast_return::generate_quads()");
