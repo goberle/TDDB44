@@ -437,6 +437,19 @@ void ast_expr_list::generate_parameter_list(quad_list &q,
 {
     USE_Q;
     /* Your code here */
+    if (last_expr != NULL)
+    {
+        ++(*nr_params);
+
+        sym_index param = last_expr->generate_quads(q);
+
+        q += new quadruple(q_param, param, NULL_SYM, NULL_SYM);
+    }
+
+    if (preceding != NULL)
+    {
+        preceding->generate_parameter_list(q, last_param->preceding, nr_params);
+    }
 }
 
 
@@ -445,6 +458,17 @@ sym_index ast_procedurecall::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+
+    int nr_params = 0;
+
+    if (parameter_list != NULL)
+    {
+        parameter_symbol * formals = sym_tab->get_symbol(this->id->sym_p)->get_procedure_symbol()->last_parameter;
+        parameter_list->generate_parameter_list(q, formals, &nr_params);
+    }
+
+    q += new quadruple(q_call, id->sym_p, nr_params, NULL_SYM);
+
     return NULL_SYM;
 }
 
@@ -454,7 +478,26 @@ sym_index ast_functioncall::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    int nr_params = 0;
+
+    sym_index res;
+
+    if (type == integer_type || type == real_type)
+    {
+        res = sym_tab->gen_temp_var(type);
+    }
+    else
+        fatal("Illegal type in ast_functioncall::generate_quads()");
+
+    if (parameter_list != NULL)
+    {
+        parameter_symbol * formals = sym_tab->get_symbol(this->id->sym_p)->get_function_symbol()->last_parameter;
+        parameter_list->generate_parameter_list(q, formals, &nr_params);
+    }
+
+    q += new quadruple(q_call, id->sym_p, nr_params, res);
+
+    return res;
 }
 
 
