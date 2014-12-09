@@ -171,8 +171,20 @@ long symbol_table::get_next_label()
    an error. This method is used for quad generation. */
 sym_index symbol_table::gen_temp_var(sym_index type)
 {
+    ostringstream tmp_name;
+    static int temp_var_cnt = 1;
+
     /* Your code here */
-    return NULL_SYM;
+    if (type == void_type)
+      fatal("temp generated variables should not be void at this point");
+
+    if (temp_var_cnt > MAX_TEMP_VARS)
+      fatal("cannot assign more than 1 million temp variable during quad generation");
+
+    tmp_name << "$" << temp_var_cnt++;
+    pool_index pool_i = pool_install(const_cast<char *>(tmp_name.str().c_str()));
+
+    return enter_variable(pool_i, type);
 }
 
 

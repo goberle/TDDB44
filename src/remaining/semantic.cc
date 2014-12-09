@@ -211,7 +211,7 @@ sym_index ast_indexed::type_check()
     if (index->type_check() != integer_type)
         type_error(pos) << "expression type is not integer for array index\n";
 
-    return id->type_check();
+    return type = id->type_check();
 }
 
 ast_expression * semantic::add_cast (ast_expression * expr)
