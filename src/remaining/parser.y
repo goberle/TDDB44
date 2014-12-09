@@ -546,6 +546,9 @@ param_list      : param
                 | param_list T_SEMICOLON param
                 {
                 }
+                | /* empty */
+                {
+                }
                 ;
 
 
