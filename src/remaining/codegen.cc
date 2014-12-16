@@ -181,22 +181,20 @@ void code_generator::fetch(sym_index sym_p, register_type dest)
             find(sym_p, &level, &offset);
             frame_address(level, RCX);
 
-            if (offset > 0)
-                out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[RCX] << "+" << offset << "]" << endl;
+            out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[RCX];
+            
+            if (offset >= 0)
+                out << "+" << offset;
             else
-                out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[RCX] << offset << "]" << endl;
-
+                out << offset;
+            
+            out << "]" << endl;
             break;
         }
         case SYM_CONST:
         {
             constant_symbol *c_sym = sym->get_constant_symbol();
-
-            if (c_sym->type == integer_type)
-                out << "\t\t" << "mov" << "\t" << reg[dest] << ", " << c_sym->const_value.ival << endl;
-            else
-                out << "\t\t" << "mov" << "\t" << reg[dest] << ", " << sym_tab->ieee(c_sym->const_value.rval) << endl;
-
+            out << "\t\t" << "mov" << "\t" << reg[dest] << ", " << c_sym->const_value.ival << endl;
             break;
         }
         default:
@@ -218,22 +216,21 @@ void code_generator::fetch_float(sym_index sym_p)
         find(sym_p, &level, &offset);
         frame_address(level, RCX);
 
-        if (offset > 0)
-          out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RCX] << "+" << offset << "]" << endl;
+        out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RCX]; 
+        
+        if (offset >= 0)
+            out << "+" << offset;
         else
-          out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RCX] << offset << "]" << endl;
+            out << offset; 
+             
+        out << "]" << endl;
 
         break;
     }
     case SYM_CONST:
     {
         constant_symbol *const_sym = sym->get_constant_symbol();
-        
-        if(const_sym->type == real_type)
-            out << "\t\t" << "mov" << "\t" << reg[RCX] << ", " << sym_tab->ieee(const_sym->const_value.rval) << endl;  
-        else
-            out << "\t\t" << "mov" << "\t" << reg[RCX] << ", " << const_sym->const_value.ival << endl;  
-        
+        out << "\t\t" << "mov" << "\t" << reg[RCX] << ", " << sym_tab->ieee(const_sym->const_value.rval) << endl;  
         out << "\t\t" << "sub" << "\t" << "rsp" << ", " << STACK_WIDTH << endl;
         out << "\t\t" << "mov" << "\t[" << "rsp" << "], " << reg[RCX] << endl;
         out << "\t\t" << "fld" << "\t" << "qword ptr [" << "rsp" << "]" << endl;
@@ -256,10 +253,14 @@ void code_generator::store(register_type src, sym_index sym_p)
     find(sym_p, &level, &offset);
     frame_address(level, RCX);
 
-    if (offset > 0)
-        out << "\t\t" << "mov" << "\t" << "[" << reg[RCX] << "+" << offset << "], " << reg[src] << endl;
+    out << "\t\t" << "mov" << "\t" << "[" << reg[RCX];
+
+    if (offset >= 0)
+        out << "+" << offset;
     else
-        out << "\t\t" << "mov" << "\t" << "[" << reg[RCX] << offset << "], " << reg[src] << endl;
+        out << offset;
+
+    out << "], " << reg[src] << endl;
 }
 
 void code_generator::store_float(sym_index sym_p)
@@ -270,10 +271,14 @@ void code_generator::store_float(sym_index sym_p)
     find(sym_p, &level, &offset);
     frame_address(level, RCX);
 
-    if (offset > 0)
-        out << "\t\t" << "fstp" << "\t" << "qword ptr [" << reg[RCX] << "+" << offset << "]" << endl;
+    out << "\t\t" << "fstp" << "\t" << "qword ptr [" << reg[RCX];
+    
+    if (offset >= 0)
+        out << "+" << offset; 
     else
-        out << "\t\t" << "fstp" << "\t" << "qword ptr [" << reg[RCX] << offset << "]" << endl;
+        out << offset;
+    
+    out << "]" << endl;
 }
 
 
@@ -286,7 +291,7 @@ void code_generator::array_address(sym_index sym_p, register_type dest)
     find(sym_p, &level, &offset);
     frame_address(level, RCX);
 
-    if (offset > 0)
+    if (offset >= 0)
         out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << "+" << offset << "]" << endl;
     else {
         out << "\t\t" << "sub" << "\t" << reg[RCX] << ", " << (-1)*offset << endl;
