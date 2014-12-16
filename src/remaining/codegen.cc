@@ -224,7 +224,6 @@ void code_generator::fetch_float(sym_index sym_p)
             out << offset; 
              
         out << "]" << endl;
-
         break;
     }
     case SYM_CONST:
