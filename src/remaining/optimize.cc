@@ -409,7 +409,8 @@ void ast_if::optimize()
 void ast_return::optimize()
 {
     /* Your code here */
-    value = optimizer->fold_constants(value);
+    if (value != NULL)
+      value = optimizer->fold_constants(value);
 }
 
 
